@@ -1,0 +1,1133 @@
+/* Beyond Nomad Luxury Hostel — site.css
+   Design system: _redesign-docs/05-art-direction.md
+   All contrast ratios in comments are computed, not estimated. */
+
+/* ---------------------------------------------------------------- tokens */
+:root {
+  /* ---------------------------------------------------------------- ink */
+  --ink:        #16211D;   /* body text, headings, the fact plate, the footer, the sticky bar */
+  --ink-soft:   #3A4A43;   /* .lede, .hero__sub — the second voice */
+  --rock:       #5C6660;   /* .eyebrow, .meta, figcaption, .field__help, input borders, .link-more rule */
+
+  /* ---------------------------------------------------------------- paper */
+  --paper:      #F7F4EE;   /* the page */
+  --paper-2:    #EDE7DC;   /* .callout, .panel, .diagram, .form-errors — never a whole section */
+  --field:      #FFFFFF;   /* inputs, selects, textareas, the QR plate */
+
+  /* ---------------------------------------------------------------- cool: the roof */
+  --green-deep: #0C4D46;   /* PRIMARY CTA fill, .link-more, .btn--outline, focus ring on light */
+  --green:      #17635C;   /* inline links in body text */
+  --glass:      #8BDAD8;   /* 178°, the measured roof hue. FILL AND DARK-SURFACE TEXT ONLY */
+  --ridge:      #232E2B;   /* .section--dark. The black steel frame, not an invented grey */
+
+  /* ---------------------------------------------------------------- warm: the tables */
+  --timber:     #7A4A20;   /* prices, ledger labels on warm pages, .callout rule */
+  --timber-lit: #DD833E;   /* the sunlit table, measured. NON-TEXT ONLY */
+
+  /* ---------------------------------------------------------------- rules */
+  --line:       #D9D2C5;   /* decorative hairlines. 1.37:1 — decoration only, never an affordance */
+  --line-hard:  #C3B9A5;   /* decorative, heavier: above a caption, section seams */
+  --muted-on-dark: #C3D2CB;/* 8.95:1 on --ridge, 10.56:1 on --ink */
+
+  /* ---------------------------------------------------------------- state */
+  --alarm:      #8C2F1E;   /* .field-error, invalid input border. 7.53:1 on --paper */
+  --alarm-bg:   #FBEDE9;   /* .form-errors surface */
+
+  /* ------------------------------------------------------- the one switch
+     The two light temperatures, as a variable. This is what makes the idea a
+     system instead of a mood: every hairline label, ledger dt, callout rule and
+     figure pre-paint on a page reads the same token, set once per section. */
+  --accent:     var(--green-deep);
+  --fig-field:  var(--paper-2);
+  --focus:      var(--green-deep);
+
+  /* type */
+  --font-display: "Newsreader", "Newsreader fallback", Georgia, "Iowan Old Style", "Noto Serif", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* The display scale climbs further at the top end than it used to. On a 1440px
+     screen the old h2 topped out at 35 px against a 1184px measure, which reads as a
+     document rather than as a designed page — headings have to hold a column that
+     wide. Small ends are unchanged, so nothing moves on a phone. */
+  --fs-hero:  clamp(2.35rem, 3.40vw + 1.58rem, 4.15rem);   /* 37.6 -> 66.4 px, Home H1 only */
+  --fs-h1:    clamp(2.10rem, 2.10vw + 1.63rem, 3.50rem);   /* 33.9 -> 56.0 px */
+  --fs-h2:    clamp(1.66rem, 1.30vw + 1.37rem, 2.55rem);   /* 26.6 -> 40.8 px */
+  --fs-h3:    clamp(1.32rem, 0.50vw + 1.21rem, 1.60rem);   /* 21.1 -> 25.6 px */
+  --fs-body:  clamp(1.0625rem, 0.35vw + 1rem, 1.1875rem);  /* 17.1 -> 19.0 px */
+  --fs-lede:  clamp(1.20rem, 0.75vw + 1.05rem, 1.45rem);   /* 20.0 -> 23.2 px */
+  --fs-small: 0.9375rem;
+  --fs-micro: 0.8125rem;
+
+  /* measure tied to the font, so it does not shrink as the type grows */
+  --measure:      56ch;
+  --measure-wide: 72ch;
+  --wide:         78rem;
+  --gutter:       clamp(1.25rem, 4.5vw, 4rem);
+  /* How far a bleeding element must travel to leave the page: its own gutter plus
+     whatever margin the centred wrap is sitting in. Without the second term a
+     "full bleed" stops at the wrap's box edge — 96px short of the screen at 1440px,
+     which reads as a mistake rather than as an edge. */
+  --bleed:        calc(var(--gutter) + max(0px, (100vw - var(--wide)) / 2));
+
+  --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s5:1.5rem; --s6:2.25rem; --s7:3.5rem; --s8:6rem;
+  --section:       clamp(3.5rem, 9vw, 7rem);
+  /* The guide pages are twenty-five --tight sections stacked, and at 4rem the gap
+     between them was 64px carrying a 41px heading — under two line-heights, which
+     is what reads as crowded. */
+  --section-tight: clamp(2.5rem, 6vw, 5rem);
+
+  /* One radius on this site. Nothing is a pill and there are no circles. */
+  --radius: 2px;
+  --hairline: 0 1px 0 rgba(22, 33, 29, .08);
+}
+
+/* Self-hosted, same origin. 23,668 bytes measured. SIL OFL 1.1 — assets/fonts/OFL.txt
+   ships beside it, as the licence requires. Deliberately NOT preloaded: the LCP element
+   on every page is a photograph and the font must not compete with it. */
+@font-face {
+  font-family: "Newsreader";
+  src: url("/assets/fonts/newsreader-display.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2013-2014, U+2018-201D, U+2022, U+2026, U+2039-203A, U+2192;
+}
+
+/* The fallback is metric-matched, so `swap` changes the letterforms and NOT the line
+   count or the block height. Ratios computed from the two fonts' own tables over this
+   site's display corpus: avg advance/em Newsreader 0.42010, Georgia 0.45517.
+   Newsreader hhea: asc 1470/2000, desc -530/2000, gap 0. */
+@font-face {
+  font-family: "Newsreader fallback";
+  src: local("Georgia");
+  size-adjust: 92.29%;
+  ascent-override: 79.64%;
+  descent-override: 28.71%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Newsreader fallback";
+  src: local("Times New Roman");
+  size-adjust: 100.30%;
+  ascent-override: 73.28%;
+  descent-override: 26.42%;
+  line-gap-override: 0%;
+}
+
+/* Warm sections and warm pages. One line, and the page changes temperature. */
+.is-warm, .section--warm { --accent: var(--timber); --fig-field: #F3E3D3; }
+
+/* ------------------------------------------------------------------ base */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);                /* 15.07:1 */
+  font: var(--fs-body)/1.62 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  padding-bottom: var(--bar-h);
+}
+
+/* font-weight 600 on Georgia / New York / Noto Serif has no real cut, so the browser
+   synthesises it — every heading was rendering bolder than the CSS claimed. 400 with
+   synthesis off is the honest weight and a free upgrade. 05a §3.1. */
+/* The display face. font-weight is 400 and font-synthesis is off: the wght axis is
+   pinned in the subset, so a browser asked for bold would fake one. */
+h1, h2, h3, h4, .wordmark, .card__title, .faq summary, .footer__brand, .menu__list a,
+.ledger dt, .ledger__label, .price, .timeline dt, .statement {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  font-variant-numeric: lining-nums;
+}
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+h1 { font-size: var(--fs-h1); line-height: 1.08; letter-spacing: -.012em; max-width: 24ch; }
+h2 { font-size: var(--fs-h2); line-height: 1.10; letter-spacing: -.010em; max-width: 28ch; }
+h3 { font-size: var(--fs-h3); line-height: 1.20; max-width: 34ch; }
+h4 { font-size: var(--fs-h3); line-height: 1.20; }
+
+/* A heading's space belongs below it, not above it. This one rule replaces forty-odd
+   inline margin-top declarations that were scattered through the markup and half of
+   which disagreed with each other. */
+p { margin: 0 0 var(--s5); text-wrap: pretty; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 700; }   /* 650 is synthesised on most UI faces */
+img, svg, video { max-width: 100%; height: auto; display: block; }
+ul, ol { margin: 0 0 var(--s5); padding-left: 1.25em; }
+li + li { margin-top: var(--s2); }
+hr { border: 0; border-top: 1px solid var(--line); margin: var(--s7) 0; }
+
+/* A heading's space belongs below it, not above it — and an h2 at 41px needs more of
+   it than an h3 at 26px, which one shared value could not give.
+
+   THIS BLOCK MUST STAY BELOW the p / ul / ol rules above. `h2 + *` and `p` are both
+   (0,0,1), so the `margin` SHORTHAND on p wins on source order and resets the top
+   margin to zero. Written above them, every heading on the site sat flat on its own
+   first paragraph — which is why the markup used to carry `style="margin-top:…"` on
+   forty-odd first paragraphs. Those inline styles were compensating for this bug,
+   not expressing a decision. */
+h1 + *, h2 + * { margin-top: var(--s6); }
+h3 + *, h4 + * { margin-top: var(--s5); }
+
+a { color: var(--green); text-decoration-thickness: 1px; text-underline-offset: .18em; }   /* 5.84:1 */
+a:hover { color: var(--green-deep); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 1px; }
+
+::selection { background: var(--glass); color: var(--ink); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: var(--s4); top: -100%; z-index: 200;
+  background: var(--ink); color: var(--paper); padding: var(--s3) var(--s4);
+  border-radius: var(--radius); font-size: var(--fs-small);
+}
+.skip-link:focus { top: var(--s2); }
+
+/* --------------------------------------------------------------- layout */
+.wrap { max-width: var(--wide); margin-inline: auto; padding-inline: var(--gutter); }
+.prose { max-width: var(--measure); }
+
+/* ------------------------------------------------------------ L1b spread
+   THE FIX FOR THE EMPTY RIGHT HALF.
+
+   `.wrap > .prose` sets a 56ch column inside a 78rem container. On a 1440px screen
+   that is a 585px column in a 1168px field: 46% of every prose section was
+   structurally empty, and eight of the nine sections on each guide page were built
+   that way. That is not "generous whitespace" — whitespace is the shape left by
+   something placed, and nothing was placed. It read as an unfinished document.
+
+   So the right field becomes a column with a job. The text keeps its measure — the
+   reading experience does not change and neither does the phone, where this whole
+   grid collapses to one column. What changes is that the field beside it now holds a
+   photograph, a caption, a set of figures or a marginal note.
+
+   Editorially this is the oldest layout there is: a text block and a margin. It is
+   what Kinfolk, Cereal, Aesop and every well-set travel monograph do, and it is what
+   the "European taste" the client is asking for actually resolves to at the layout
+   level — an asymmetric two-column field, a text column that never grows past its
+   measure, and a margin that carries the image. */
+.spread { display: grid; gap: var(--s6); }
+@media (min-width: 1024px) {
+  .spread {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 4.5vw, 5rem);
+    align-items: start;
+  }
+  /* The grid column IS the measure here, so the inner cap would only fight it. */
+  .spread > .prose { max-width: none; }
+  /* Text is always first in the DOM. --flip moves the margin to the left visually
+     without touching the reading order, so alternating sides down a page costs
+     nothing in accessibility. */
+  .spread--flip > :first-child { order: 2; }
+  /* A narrower text column when the margin carries the subject rather than a note. */
+  .spread--media { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  /* Rail: the aside comes FIRST in the DOM and takes the narrow left column — a
+     heading or a standfirst holding open the margin for the content beside it.
+     No `order` here, so the reading order is already the visual order. */
+  .spread--rail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+  .spread--rail > .spread__aside { padding-right: var(--s5); }
+  /* The margin bleeds to the outer page edge on the media variant — that is what
+     makes it a spread and not two boxes sitting side by side. */
+  .spread--bleed > .spread__aside { margin-right: calc(var(--bleed) * -1); }
+  .spread--bleed.spread--flip > .spread__aside { margin-right: 0; margin-left: calc(var(--bleed) * -1); }
+}
+.spread__aside > :first-child { margin-top: 0; }
+.spread__aside .fig, .spread__aside figure { margin: 0; }
+
+/* The marginal note: the quiet thing that goes in the field when a photograph would
+   be too loud. Hairline above, small, set in the section's own accent. */
+.marginal {
+  font-size: var(--fs-small); line-height: 1.5; color: var(--rock);
+  border-top: 2px solid var(--accent); padding-top: var(--s3); margin: 0;
+}
+.marginal + .marginal { margin-top: var(--s5); }
+.marginal b, .marginal strong {
+  display: block; font-family: var(--font-display); font-weight: 400;
+  font-size: var(--fs-h3); line-height: 1.2; color: var(--ink); margin-bottom: var(--s1);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.section--dark .marginal { color: var(--muted-on-dark); }
+.section--dark .marginal b, .section--dark .marginal strong { color: var(--paper); }
+
+.tabular { font-variant-numeric: lining-nums tabular-nums; }
+.section { padding-block: var(--section); }
+.section--tight { padding-block: var(--section-tight); }
+.section--dark { background: var(--ridge); color: var(--paper); }     /* 10.87:1 */
+/* --accent has to flip with the surface or it stays --green-deep (#0C4D46) on
+   --ridge (#232E2B) — 1.31:1, invisible. Nothing used it on a dark band until the
+   /book/ route ledger did, so the bug was latent rather than absent. 05b §3.1 L9. */
+.section--dark { --focus: var(--glass); --accent: var(--glass); --fig-field: #1A2422; }
+.section--dark a { color: var(--glass); }                              /* 7.30:1 */
+.section--dark a:hover { color: #fff; }
+.section--paper2 { background: var(--paper-2); }
+/* The old form of this rule tested the colour of the FOLLOWING section instead of
+   the preceding one, so every plain band after a coloured one lost its top padding
+   and its heading butted into the seam. D-07. */
+/* Two plain bands in a row do not need two lots of padding at the seam, so the
+   second drops its top. But a band that paints its OWN surface always keeps it:
+   without the top padding the coloured edge lands flush on the heading, which is
+   what "Where you would sleep", "What is not up here", "Ask about a bed" and
+   "Finding us" were all doing.
+   .section--dark on its own is (0,1,0) and lost to `.section + .section` at
+   (0,2,0) every time. Written with .section it ties at (0,2,0) and wins on order,
+   which is the whole fix. */
+.section + .section { padding-top: 0; }
+.section.section--dark, .section.section--paper2,
+.section--dark + .section, .section--paper2 + .section { padding-top: var(--section); }
+/* A full-bleed plate or a fold is not a .section, so the band after it never lost
+   its padding — but it did gain a double gap. Halve it at that seam. */
+.plate + .section, .fold + .section { padding-top: var(--section-tight); }
+
+.eyebrow, .hero__eyebrow, .panel dt, .contact-list dt, .footer h2 {
+  font-family: var(--font-body);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;      /* .08em overflowed the hero panel at 390px */
+  line-height: 1.5;
+  color: var(--rock);
+}
+.eyebrow { margin: 0 0 var(--s4); }
+.section--dark .eyebrow { color: var(--glass); }
+/* 32ch at 23px is a 380px orphan in a 1168px field. 38ch still reads as a lede and
+   stops looking like a stranded fragment on a desktop. */
+.lede { font-size: var(--fs-lede); line-height: 1.42; color: var(--ink-soft); max-width: 38ch; }  /* 8.54:1 */
+.section--dark .lede { color: #E6EFEA; }
+.meta { font-size: var(--fs-small); color: var(--rock); }              /* 5.43:1 */
+.section--dark .meta,
+.section--dark .card__meta,
+.section--dark .updated,
+.section--dark figcaption { color: var(--muted-on-dark); }
+.rule { border: 0; border-top: 1px solid var(--line); margin: 0; }
+.section--dark .rule { border-color: rgba(143, 217, 190, .28); }
+
+/* --------------------------------------------------------------- header */
+.header {
+  position: sticky; top: 0; z-index: 90;
+  background: var(--paper); box-shadow: var(--hairline);
+  transition: transform 200ms ease;
+}
+.header[data-hidden="true"] { transform: translateY(-100%); }
+/* ...but never while something inside it has focus. position: sticky means the
+   browser's scroll-into-view has nothing to scroll: the layout box is already in the
+   viewport and only the paint is displaced. Specificity (0,3,0) beats the (0,2,0)
+   hide rule above. QA 🟠-1. */
+.header[data-hidden="true"]:focus-within { transform: none; }
+.header__inner {
+  max-width: var(--wide); margin-inline: auto; padding-inline: var(--gutter);
+  min-height: 56px; display: flex; align-items: center; gap: var(--s4);
+}
+.wordmark {
+  font-family: var(--font-display); font-size: 1.0625rem; font-weight: 400;
+  letter-spacing: .01em; color: var(--ink); text-decoration: none; margin-right: auto;
+  padding: var(--s2) 0;
+}
+.wordmark:hover { color: var(--green-deep); }
+
+.menu-btn {
+  font: 600 var(--fs-small)/1 var(--font-body);
+  min-height: 44px; padding: 0 var(--s3); margin-right: calc(var(--s3) * -1);
+  background: none; border: 0; color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--s2);
+}
+.menu-btn:hover { color: var(--green-deep); }
+.menu-btn svg { width: 18px; height: 18px; }
+
+.nav-desktop { display: none; }
+
+@media (min-width: 1024px) {
+  .menu-btn { display: none; }
+  .nav-desktop { display: flex; align-items: center; gap: clamp(.75rem, 1.6vw, 1.5rem); }
+  .nav-desktop a:not(.btn) {
+    color: var(--ink); text-decoration: none; font-size: var(--fs-small); font-weight: 500;
+    padding: var(--s2) 0; border-bottom: 2px solid transparent;
+  }
+  .nav-desktop a:not(.btn):hover { color: var(--green-deep); border-bottom-color: var(--green-deep); }
+  .nav-desktop a[aria-current="page"] { border-bottom-color: var(--timber); }
+  .nav-desktop .btn { margin-left: var(--s3); }
+}
+
+/* ----------------------------------------------------------- menu panel */
+.menu {
+  position: fixed; inset: 0; z-index: 120; display: none;
+  background: var(--ridge); color: var(--paper);
+  padding: var(--s4) var(--gutter) max(var(--s6), env(safe-area-inset-bottom));
+  flex-direction: column;
+  --focus: var(--glass);
+}
+.menu[data-open="true"] { display: flex; }
+.menu__top { min-height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.menu__close {
+  font: 600 var(--fs-small)/1 var(--font-body); min-height: 44px; padding: 0 var(--s3);
+  margin-right: calc(var(--s3) * -1);
+  background: none; border: 0; color: var(--paper); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--s2);
+}
+.menu__close svg { width: 18px; height: 18px; }
+/* bottom-anchored list — 03-ux-architecture.md §7.1: the top half of a phone is out of thumb reach */
+.menu__list { margin-top: auto; list-style: none; padding: 0; }
+.menu__list li { margin: 0; }
+.menu__list a {
+  display: block; padding: var(--s3) 0; min-height: 56px;
+  font-family: var(--font-display); font-size: 1.35rem; color: var(--paper);
+  text-decoration: none; border-bottom: 1px solid rgba(143, 217, 190, .18);
+  display: flex; align-items: center;
+}
+.menu__list a:hover, .menu__list a:focus-visible { color: var(--glass); }
+.menu__contact { margin-top: var(--s5); font-size: var(--fs-small); display: grid; gap: var(--s3); }
+.menu__contact a { color: var(--glass); }
+
+/* ------------------------------------------------------------- buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 56px; padding: var(--s3) var(--s6);
+  font: 600 1.0625rem/1.2 var(--font-body); text-align: center;
+  border: 2px solid transparent; border-radius: var(--radius);
+  cursor: pointer; text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.btn--primary { background: var(--green-deep); color: #fff; }     /* 10.78:1 — §7.4 target was 7:1 */
+.btn--primary:hover { background: #0A3729; color: #fff; }
+/* Glass-filled controls need an INSET ink ring: a --glass outline outside a --glass
+   button is 1.00:1, and on the sticky bar the outer edge lands on --ink (1.53:1),
+   so no single outline colour works there. ink on glass = 10.33:1.
+   05a-art-direction-review.md D-05. */
+.section--dark .btn--primary:focus-visible,
+.stickybar__cta:focus-visible,
+.section--dark .chip:hover:focus-visible {
+  outline: 3px solid var(--ink); outline-offset: -6px;
+}
+.btn--outline { background: none; color: var(--green-deep); border-color: var(--green-deep); }  /* 9.82:1 */
+.btn--outline:hover { background: var(--green-deep); color: #fff; }
+.section--dark .btn--primary { background: var(--glass); color: var(--ink); }   /* 10.11:1 */
+.section--dark .btn--primary:hover { background: #fff; color: var(--ink); }
+.section--dark .btn--outline { color: var(--glass); border-color: var(--glass); }
+.section--dark .btn--outline:hover { background: var(--glass); color: var(--ink); }
+.btn--sm { min-height: 44px; padding: var(--s2) var(--s4); font-size: var(--fs-small); }
+.btn--block { width: 100%; }
+
+/* T2 navigational link */
+.link-more {
+  display: inline-flex; align-items: center; gap: .4em; min-height: 44px;
+  font-weight: 600; font-size: 1.0625rem; color: var(--green-deep); text-decoration: none;
+  border-bottom: 2px solid var(--rock);        /* 5.43:1 — --line was 1.37:1 (D-06) */
+}
+.link-more:hover { color: var(--green-deep); border-bottom-color: var(--green-deep); }
+.section--dark .link-more { color: var(--glass); border-bottom-color: currentColor; }  /* was 2.67:1 composited; now 8.76:1 */
+.section--dark .link-more:hover { color: #fff; border-bottom-color: #fff; }
+.link-more::after { content: "›"; font-size: 1.15em; line-height: 1; }
+.link-more--plain { border-bottom: 0; }
+
+.ext::after {
+  content: ""; display: inline-block; width: .62em; height: .62em; margin-left: .3em;
+  background: currentColor; vertical-align: baseline;
+  clip-path: polygon(38% 0, 100% 0, 100% 62%, 84% 62%, 84% 27%, 27% 84%, 16% 73%, 73% 16%, 38% 16%);
+}
+
+/* --------------------------------------------------------- sticky bar */
+.stickybar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+  display: none; align-items: stretch;
+  background: var(--ink); color: #fff;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%); transition: transform 200ms ease;
+}
+.stickybar[data-show="true"] { transform: translateY(0); }
+.stickybar__cta {
+  flex: 0 0 62%; display: flex; align-items: center; justify-content: center;
+  min-height: 56px; background: var(--glass); color: var(--ink);   /* 10.11:1 */
+  font: 600 1.0625rem/1 var(--font-body); text-decoration: none;
+}
+.stickybar__cta:hover { background: #fff; color: var(--ink); }
+.stickybar__price {
+  flex: 1 1 38%; display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-small); color: #fff; text-align: center; padding-inline: var(--s2);
+}
+@media (max-width: 1023px) {
+  .stickybar { display: flex; }
+  /* Space is reserved from the start, so the bar sliding in shifts nothing. */
+  body:has(.stickybar) { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) { .stickybar { transition: none; } }
+.copy-fallback { width: 100%; font: 1rem/1.4 var(--font-body); padding: var(--s3); border: 1px solid var(--rock); border-radius: var(--radius); }
+
+/* ================================================================== the fold
+   L3 `overlap` — a cream panel climbing into the bottom-left corner of the
+   photograph — is replaced by L3b `.fold`: the screen divided vertically, type on
+   one side and a full-height photograph on the other, both bleeding to their own
+   edges.
+
+   The constraint that produced `overlap` still binds and is still right. Text over
+   this photograph measures 1.41:1 / 2.13:1 / 3.91:1, and a scrim opaque enough to
+   fix it erases the green light the entire palette is built on. So there is still
+   NO TYPE OVER THE HERO. What changes is that the type now has a side of the page
+   instead of a box dropped onto the picture — the panel reads as one half of a
+   designed spread rather than as an element covering a photograph's corner.
+
+   This is the fold every hotel site worth copying uses, and it is the one shape
+   that satisfies the contrast rule without apologising for it: the photograph is
+   uncropped at the top, unscrimmed, full height, and the words are on paper at
+   15.07:1. 05a D-01 and 05b §3.2 are honoured, not overruled. */
+.fold { background: var(--paper); }
+.fold__media { overflow: hidden; background: var(--fig-field); }
+.fold__media img {
+  width: 100%; height: 58svh; min-height: 17rem;
+  object-fit: cover; object-position: 42% 50%; display: block;
+}
+.fold__panel {
+  padding: clamp(2rem, 7vw, 3rem) var(--gutter) clamp(2.5rem, 8vw, 3.5rem);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.fold h1 {
+  font-size: var(--fs-hero); line-height: 1.03; letter-spacing: -.019em;
+  /* 16ch, not 15. The home h1 opens "A twenty-six-bed" as one unbreakable unit —
+     sixteen characters — and at 15ch the line could not hold it, so the article
+     was stranded on a display line of its own above the number. The measure was
+     tuned when that unit was "A fourteen-bed" and fitted. Nothing else on the
+     site sets a fold h1 anywhere near the cap, so this only moves the one that
+     was broken. */
+  max-width: 16ch; text-wrap: balance;
+  /* "twenty-six-bed" carries real hyphens and the browser will break the line on
+     them given half a chance, which stranded "A twenty-" on its own line. */
+  hyphens: none; overflow-wrap: normal;
+}
+/* The separator must not be allowed to sit at the end of a line, and the whole
+   line has to survive the panel at 1024px, so the two halves are held together and
+   the break, if there is one, happens between them. */
+.fold__eyebrow { margin: 0 0 var(--s5); max-width: none; }
+.fold__sub { margin: var(--s5) 0 0; max-width: 34ch; }
+.fold__actions {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--s4) var(--s6); margin-top: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+/* The five facts used to be a black band slammed across the page directly under the
+   fold. Three of them, set as a hairline row inside the panel, do the same job
+   without a second full-width element competing with the photograph. */
+.fold__facts {
+  list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: var(--s4) 0 0;
+  border-top: 1px solid var(--line-hard);
+  display: grid; gap: var(--s3) var(--s5);
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+.fold__facts li { margin: 0; font-size: var(--fs-small); line-height: 1.35; color: var(--ink-soft); }
+.fold__facts b {
+  display: block; font-family: var(--font-display); font-weight: 400;
+  font-synthesis: none; font-variant-numeric: lining-nums tabular-nums;
+  font-size: var(--fs-h3); line-height: 1.15; color: var(--ink); margin-bottom: 2px;
+}
+
+@media (min-width: 900px) {
+  .fold {
+    display: grid; grid-template-columns: 48fr 52fr;
+    /* 56px is the header's own min-height, so the fold fills exactly what is left of
+       the first screen and the next section's edge sits just below it — visible
+       enough to say "there is more", not so much that it eats the photograph. */
+    min-height: min(calc(100svh - 56px), 54rem);
+  }
+  .fold__media { grid-column: 2; position: relative; }
+  /* `height: 100%` on the img cannot resolve here — its containing block is a grid
+     item whose own height is auto — so the browser fell back to the intrinsic
+     height. A landscape source then left bare --fig-field under it (that is the
+     "bottom half looks wrong" on /rooms/ and /tours/) and a portrait source stretched
+     the whole fold past the viewport (/breakfast/). Taking the picture out of flow
+     gives it a definite box to fill. */
+  .fold__media picture { position: absolute; inset: 0; display: block; }
+  .fold__media img { width: 100%; height: 100%; min-height: 0; object-fit: cover; }
+  .fold__panel { padding-inline: max(var(--gutter), calc((100vw - var(--wide)) / 2 + var(--gutter))) clamp(2.5rem, 4vw, 4rem); }
+  .fold h1 { max-width: 17ch; }
+}
+
+/* Under 900px the photograph goes first: on a phone the picture is the headline,
+   and the H1 still leads the document for anything reading the DOM. */
+@media (max-width: 899px) {
+  .fold__media { order: -1; }
+  .fold { display: flex; flex-direction: column; }
+}
+
+/* --page: the same fold, shorter and evenly split, for the eleven interior pages.
+   Every one of them opened on a headline and a standfirst alone on a cream field,
+   with the first photograph a screen and a half further down — which is the same
+   defect as the empty right half, rotated. An interior page earns a smaller fold
+   than Home, not none. */
+.fold--page .fold__media img { height: 42svh; min-height: 13rem; }
+.fold--page h1 { font-size: var(--fs-h1); line-height: 1.06; letter-spacing: -.014em; max-width: 18ch; }
+@media (min-width: 900px) {
+  .fold--page { grid-template-columns: 1fr 1fr; min-height: min(calc(82svh - 56px), 38rem); }
+  .fold--page h1 { max-width: 16ch; }
+  /* `.fold--page .fold__media img` is (0,2,1) and was beating the (0,1,1) rule above
+     that fills the grid row, so on every interior page the photograph stopped at
+     42svh and the rest of the media column showed bare --fig-field underneath it.
+     That is the "bottom half of the picture looks wrong" on /breakfast/, /tours/,
+     /ella/ and /story/. */
+  .fold--page .fold__media img { height: 100%; min-height: 0; }
+  .fold--page .fold__panel { padding-block: clamp(2.5rem, 5vw, 4rem); }
+}
+
+/* ======================================================= L11 statement plate
+   THE ONE PLACE ON THIS SITE WHERE TYPE SITS ON A PHOTOGRAPH.
+
+   The site-wide ban was never a style preference — it was a measurement. Every
+   publishable frame in the library was tested for a lower-left type block under a
+   bottom-anchored gradient, and thirty-three of the thirty-four fail: the terrace
+   floor is painted a bright yellow-green and lit, so even a 0.72 scrim leaves
+   17-56% of the type area under 4.5:1, and a scrim heavy enough to fix that is the
+   one that erases the green light the palette is built on.
+
+   `sunset-ridge` is the exception and it is not a close call. Measured on the crop
+   this component actually renders:
+
+     desktop  1440x800, object-position 50% 70%, scrim 0.35 -> worst 9.74:1, 0% under AA
+     1920x1000 ................................ same        -> worst 9.91:1, 0% under AA
+     mobile   390x44svh, object-position 50% 100%, scrim 0.60 -> worst  4.58:1, 0% under AA
+
+   The gradient is anchored to the bottom and dies at 55%, so the orange band and the
+   ranges behind it are untouched: the picture is not dimmed, only its dark hillside
+   is deepened where the words go. If this component is ever pointed at another
+   photograph, re-run that measurement first. It will almost certainly fail. */
+.plate--statement { position: relative; isolation: isolate; }
+.plate--statement img {
+  width: 100%; height: 44svh; min-height: 15rem;
+  object-fit: cover; object-position: 50% 100%; display: block;
+}
+.plate--statement::after {
+  content: ""; position: absolute; inset: 45% 0 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.60) 100%);
+}
+.plate--statement__type {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+  max-width: var(--wide); margin-inline: auto;
+  padding: 0 var(--gutter) clamp(1.75rem, 5vw, 3.5rem);
+  color: var(--paper);
+}
+.plate--statement__type .eyebrow { color: var(--glass); margin-bottom: var(--s3); }
+.plate--statement__line {
+  font-family: var(--font-display); font-weight: 400; font-synthesis: none;
+  font-size: var(--fs-h1); line-height: 1.08; letter-spacing: -.012em;
+  max-width: 20ch; margin: 0; text-wrap: balance;
+}
+@media (min-width: 900px) {
+  .plate--statement img { height: min(72svh, 40rem); object-position: 50% 70%; }
+  /* Desktop measures 9.74:1 at 0.35, so the gradient lightens and the photograph
+     keeps more of itself. */
+  .plate--statement::after { inset: 42% 0 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.35) 100%); }
+  .plate--statement__line { max-width: 16ch; }
+}
+
+/* -------------------------------------------------------------- figure */
+figure { margin: 0; }
+.fig { margin-block: var(--s6); }
+.fig__frame { background: var(--fig-field) center/cover no-repeat; border-radius: var(--radius); overflow: hidden; }
+.fig img { width: 100%; }
+/* 05b §5.11. A caption is a different voice from the body, not smaller body text:
+   micro size, tracked open, capped at a short measure so it never runs the width of
+   a full-bleed plate, and hung under a hairline that starts at the image's left edge. */
+figcaption {
+  font-size: var(--fs-micro); line-height: 1.45; letter-spacing: .012em;
+  color: var(--rock); margin-top: var(--s3); max-width: 44ch;
+}
+
+.duo { display: grid; gap: var(--s5); }
+@media (min-width: 720px) {
+  .duo { grid-template-columns: 1fr 1fr; align-items: start; }
+  /* One height across the row. Two figures at their own intrinsic aspects made a
+     ragged pair whose captions sat on two different baselines. */
+  .duo--even { align-items: stretch; }
+  .duo--even > figure { display: flex; flex-direction: column; }
+  .duo--even img { height: clamp(16rem, 24vw, 24rem); object-fit: cover; }
+}
+
+/* ---------------------------------------------------------- room cards */
+.cards { display: grid; gap: var(--s5); list-style: none; padding: 0; margin: 0; }
+.cards li { margin: 0; }
+@media (min-width: 760px) { .cards--3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 620px) { .cards--4 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .cards--4 { grid-template-columns: repeat(4, 1fr); } }
+
+.card { display: flex; flex-direction: column; height: 100%; }
+.card a.card__link { text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; }
+.card a.card__link:hover .card__title { color: var(--green-deep); text-decoration: underline; text-underline-offset: .18em; }
+.card__frame { background: var(--paper-2) center/cover no-repeat; border-radius: var(--radius); overflow: hidden; }
+.card__frame img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+/* Figure rows inside a .cards grid: same contract, since they sit in the same row
+   and a viewer reads them as one set. */
+.cards > div > .fig img, .cards > li > .fig img { aspect-ratio: 4 / 3; object-fit: cover; }
+.card__body { padding-top: var(--s4); display: flex; flex-direction: column; gap: var(--s1); flex: 1; }
+.card__title { font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 400; margin: 0; }
+.card__meta { font-size: var(--fs-small); color: var(--rock); margin: 0; }
+.card__price { font-size: var(--fs-small); font-weight: 700; color: var(--ink); margin: var(--s2) 0 0; }
+
+/* horizontal scroller (mobile) — 20px peek of the next card */
+@media (max-width: 759px) {
+  .scroller {
+    display: grid; grid-auto-flow: column; grid-auto-columns: calc(100% - 20px - var(--s5));
+    gap: var(--s5); overflow-x: auto; scroll-snap-type: x mandatory;
+    padding-inline: var(--gutter); margin-inline: calc(var(--gutter) * -1);
+    scroll-padding-inline-start: var(--gutter);   /* else snap lands under the padding */
+    scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  .scroller::-webkit-scrollbar { display: none; }
+  .scroller > li { scroll-snap-align: start; }
+  .scroller-count { font-size: var(--fs-small); color: var(--rock); margin-top: var(--s4); }
+}
+@media (min-width: 760px) { .scroller-count { display: none; } }
+
+/* ------------------------------------------------------------- blocks */
+.block { padding-block: var(--s7); border-top: 1px solid var(--line); }
+.block:first-of-type { border-top: 0; padding-top: 0; }
+.block__head { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); align-items: baseline; margin-bottom: var(--s4); }
+.block__spec { list-style: none; padding: 0; margin: 0 0 var(--s5); display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); font-size: var(--fs-small); color: var(--ink); }
+
+/* The same margin-head idea as .spread, applied to the twelve .block entries on
+   /tours/ and /rooms/. Each was a full 1120px-wide article holding a 25px title and
+   two short paragraphs, which is why the tours page read as a list of stubs: the
+   line length made the copy look thinner than it is. Title and spec hang in the
+   left column, the prose keeps its measure in the right. */
+@media (min-width: 1024px) {
+  /* Only when the title is a DIRECT child. On /rooms/ each .block wraps a .split
+     whose own first column already holds the title, so the unguarded rule pushed
+     that entire split into column 2 and left column 1 empty — the exact defect this
+     rule exists to remove, reintroduced one page over. */
+  .block:has(> .block__head) {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 0 clamp(2.5rem, 4.5vw, 5rem); align-items: start;
+  }
+  /* Both are placed definitely, so grid resolves them before auto-placement and the
+     body's first element still lands on row 1, level with the title, instead of
+     being pushed down past the spec list. */
+  .block:has(> .block__head) > .block__head { grid-column: 1; grid-row: 1; margin-bottom: var(--s4); }
+  .block:has(> .block__head) > .block__spec { grid-column: 1; grid-row: 2; }
+  .block:has(> .block__head) > :not(.block__head):not(.block__spec) { grid-column: 2; max-width: var(--measure); }
+}
+.block__spec li { margin: 0; }
+.block__spec li + li::before { content: "·"; margin-right: var(--s4); color: var(--rock); }
+.block__spec strong { font-weight: 700; }
+
+/* The separator is a ::before on the FOLLOWING item, so when the row wraps the
+   "·" travels to the new line and starts it — a bullet dangling in the left
+   margin under "4 beds · Any gender". This was in the build from the beginning
+   and nobody saw it, because every "390 px" screenshot taken on this project was
+   really a 500 px render cropped to 390 (see tools/shot.sh) and the row does not
+   wrap at 500. At a real phone width it always wrapped, even with three items.
+   Below 620 the list stacks and the separators go: four short labelled facts in
+   a column scan better on a phone than one long wrapped line, and it cannot
+   orphan anything. This matters more for /tours/ than for here — C-28 gives each
+   tour block five spec items, which would wrap twice. */
+@media (max-width: 619px) {
+  .block__spec { display: grid; gap: var(--s1); }
+  .block__spec li + li::before { content: none; }
+}
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.75rem; }
+.checklist li::before {
+  content: ""; position: absolute; left: 0; top: .55em; width: .7rem; height: .7rem;
+  background: var(--green); clip-path: polygon(0 55%, 38% 100%, 100% 12%, 100% 34%, 38% 100%, 0 78%);
+}
+
+.callout {
+  background: var(--paper-2); border-left: 3px solid var(--accent);
+  padding: var(--s5); border-radius: var(--radius); margin-block: var(--s6);
+}
+.section--dark .callout { background: rgba(255, 255, 255, .06); border-left-color: var(--glass); }
+
+/* ---------------------------------------------------------------- FAQ
+   Capped at the wide measure. Left uncapped it stretched the full 1168px content
+   field, which put the open/close chevron the better part of a metre from the
+   question it belongs to on a large screen. */
+.faq { border-top: 1px solid var(--line); max-width: var(--measure-wide); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
+  cursor: pointer; list-style: none; padding: var(--s5) 2.5rem var(--s5) 0; position: relative;
+  font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 400; min-height: 44px;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ""; position: absolute; right: .35rem; top: 50%; width: .8rem; height: .8rem;
+  margin-top: -.4rem; border-right: 2px solid var(--green-deep); border-bottom: 2px solid var(--green-deep);
+  transform: rotate(45deg); transition: transform 150ms ease;
+}
+.faq details[open] summary::after { transform: rotate(-135deg); }
+.faq__answer { padding-bottom: var(--s5); max-width: var(--measure); }
+
+/* ------------------------------------------------------------- ratings
+   Two scores, each tied to the platform that produced it. That attribution is the
+   whole reason they can ship: the old site published "★ 9.3" and "Rated 4.9/5"
+   side by side with nothing to check them against, and they read as invented
+   because there was no way to tell that they were not. 4.9 is Google's five-point
+   scale and 9.3 is Hostelworld's ten-point one, which is why both are true.
+   Deliberately NOT in the JSON-LD: self-serving aggregateRating markup is against
+   Google's own structured-data guidelines. tools/check.py still forbids it. */
+.ratings {
+  display: flex; flex-wrap: wrap; gap: var(--s5) var(--s7);
+  list-style: none; padding: 0; margin: 0 0 var(--s7);
+}
+.ratings li {
+  margin: 0; font-size: var(--fs-micro); text-transform: uppercase;
+  letter-spacing: .07em; font-weight: 600; color: var(--rock);
+}
+.ratings b {
+  display: block; font-family: var(--font-display); font-weight: 400;
+  font-synthesis: none; font-variant-numeric: lining-nums;
+  font-size: clamp(2.1rem, 2.2vw + 1.6rem, 3.1rem); line-height: 1;
+  letter-spacing: -.015em; color: var(--ink); text-transform: none;
+}
+.ratings b span { font-size: .45em; color: var(--rock); letter-spacing: 0; }
+.section--dark .ratings li { color: var(--muted-on-dark); }
+.section--dark .ratings b { color: var(--paper); }
+
+/* -------------------------------------------------------------- quotes
+   Real guest reviews, confirmed by the owner as genuine posts. Set as pull-quotes
+   in the display face rather than as cards with star rows: the stars on the old
+   site were the least believable thing on it, and two different ratings were
+   published beside each other on the same page. The words and the country do the
+   work; the link goes to the place where anyone can check them. */
+.quotes { display: grid; gap: var(--s6); list-style: none; padding: 0; margin: 0; }
+@media (min-width: 720px) { .quotes { grid-template-columns: repeat(3, 1fr); gap: clamp(1.75rem, 3vw, 3.5rem); } }
+/* A quote set at --fs-h3 needs room. Below ~230px per column it breaks over eight
+   lines and stops reading as a sentence. */
+.quotes blockquote p { max-width: 30ch; }
+.quotes li { margin: 0; }
+.quotes figure { margin: 0; display: flex; flex-direction: column; height: 100%; }
+.quotes blockquote {
+  margin: 0; font-family: var(--font-display); font-weight: 400; font-synthesis: none;
+  font-size: var(--fs-h3); line-height: 1.34; color: var(--ink);
+  border-top: 2px solid var(--accent); padding-top: var(--s4); flex: 1;
+}
+.quotes figcaption {
+  margin-top: var(--s4); max-width: none;
+  font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .07em;
+  font-weight: 600; color: var(--rock);
+}
+.section--dark .quotes blockquote { color: var(--paper); }
+.section--dark .quotes figcaption { color: var(--muted-on-dark); }
+
+/* ---------------------------------------------------------------- chips */
+.chips { display: flex; flex-wrap: wrap; gap: var(--s3); list-style: none; padding: 0; margin: 0; }
+.chips li { margin: 0; }
+.chip {
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  min-height: 56px; justify-content: center; padding: var(--s3) var(--s5);
+  background: var(--paper); border: 2px solid var(--green-deep); border-radius: var(--radius);
+  color: var(--green-deep); text-decoration: none; font-weight: 600; cursor: pointer;
+  font-family: var(--font-body); font-size: 1.0625rem; text-align: left;
+}
+.chip:hover { background: var(--green-deep); color: #fff; }
+.chip small { font-weight: 400; font-size: var(--fs-micro); opacity: .85; }
+.section--dark .chip { background: transparent; border-color: var(--glass); color: var(--glass); }
+.section--dark .chip:hover { background: var(--glass); color: var(--ink); }
+
+/* ---------------------------------------------------------------- film */
+.film { margin-block: var(--s6); }
+.film__btn {
+  position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: pointer;
+  background: var(--paper-2) center/cover no-repeat; border-radius: var(--radius); overflow: hidden;
+}
+.film__btn img { width: 100%; }
+.film__play {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(to top, rgba(22, 33, 29, .55), rgba(22, 33, 29, .12));
+}
+.film__play span {
+  display: inline-flex; align-items: center; gap: var(--s3);
+  background: var(--paper); color: var(--ink); padding: var(--s3) var(--s5);
+  border-radius: var(--radius); font: 600 1.0625rem/1 var(--font-body);
+}
+.film__play svg { width: 16px; height: 16px; }
+.film__note { font-size: var(--fs-small); color: var(--rock); margin-top: var(--s3); }
+.film video { width: 100%; border-radius: var(--radius); background: #000; }
+
+/* ---------------------------------------------------------------- form */
+.form { max-width: 36rem; }
+.field { margin-bottom: var(--s5); }
+.field > label, .field legend {
+  display: block; font-weight: 600; font-size: 1rem; margin-bottom: var(--s2); color: var(--ink);
+}
+.field legend { padding: 0; }
+.field__help { font-size: var(--fs-small); color: var(--rock); margin: var(--s2) 0 0; }
+.field__hint { font-size: var(--fs-small); color: var(--rock); margin: 0 0 var(--s2); }
+input[type="date"], input[type="text"], input[type="tel"], input[type="email"],
+input[type="number"], select, textarea {
+  width: 100%; font: 1rem/1.4 var(--font-body);          /* 16px floor — iOS zoom */
+  min-height: 52px; padding: var(--s3) var(--s4);
+  color: var(--ink); background: #fff;
+  border: 1px solid var(--rock); border-radius: var(--radius);
+  appearance: none;
+}
+textarea { min-height: 6.5rem; resize: vertical; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%230E4636' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right var(--s4) center; background-size: 12px 8px;
+  padding-right: 2.75rem;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--green-deep); }
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: #8C2F1E; border-width: 2px; }
+
+.radios { display: flex; flex-wrap: wrap; gap: var(--s3); border: 0; padding: 0; margin: 0 0 var(--s5); }
+.radios label {
+  display: inline-flex; align-items: center; gap: var(--s3); min-height: 52px;
+  padding: var(--s2) var(--s5) var(--s2) var(--s4);
+  border: 1px solid var(--rock); border-radius: var(--radius); background: #fff;
+  font-weight: 500; cursor: pointer;
+}
+.radios input { width: 1.15rem; height: 1.15rem; accent-color: var(--green-deep); margin: 0; }
+.radios label:has(input:checked) { border-color: var(--green-deep); border-width: 2px; background: var(--paper-2); }
+
+.check { display: flex; gap: var(--s3); align-items: flex-start; margin-bottom: var(--s5); }
+.check input { width: 1.35rem; height: 1.35rem; min-width: 1.35rem; margin: .18rem 0 0; accent-color: var(--green-deep); }
+.check label { font-size: 1rem; line-height: 1.5; }
+
+.field-error {
+  display: flex; gap: var(--s2); align-items: flex-start;
+  color: #8C2F1E;                                        /* 5.6:1 on --paper */
+  font-size: var(--fs-small); font-weight: 600; margin: var(--s2) 0 0;
+}
+.field-error::before { content: ""; flex: 0 0 auto; width: 1rem; height: 1rem; margin-top: .12rem; background: currentColor; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.field-error[hidden] { display: none; }
+
+.form-errors {
+  background: #FBEDE9; border-left: 3px solid #8C2F1E; padding: var(--s4) var(--s5);
+  border-radius: var(--radius); margin-bottom: var(--s6);
+}
+.form-errors h3 { font-size: 1.0625rem; margin-bottom: var(--s2); font-family: var(--font-body); }
+.form-errors ul { margin: 0; padding-left: 1.1rem; font-size: var(--fs-small); }
+.form-errors a { color: #8C2F1E; }
+.form-errors[hidden] { display: none; }
+
+.nights { font-size: var(--fs-small); font-weight: 600; color: var(--green-deep); min-height: 1.5em; margin: calc(var(--s5) * -1 + var(--s2)) 0 var(--s5); }
+.honey { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.panel { background: var(--paper-2); border-radius: var(--radius); padding: var(--s6) var(--s5); border-top: 3px solid var(--green-deep); }
+.panel h2 { margin-bottom: var(--s4); }
+.panel dl { margin: 0 0 var(--s5); }
+.panel dt { font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .07em; color: var(--rock); margin-bottom: var(--s1); }
+.panel dd { margin: 0 0 var(--s4); }
+.panel[hidden] { display: none; }
+
+/* -------------------------------------------------------------- dialog */
+dialog {
+  max-width: 30rem; width: calc(100% - 2rem); border: 0; border-radius: var(--radius);
+  padding: var(--s6) var(--s5); background: var(--paper); color: var(--ink);
+  box-shadow: 0 12px 40px rgba(22, 33, 29, .3);
+}
+dialog::backdrop { background: rgba(22, 33, 29, .68); }
+.dialog__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s4); margin-bottom: var(--s4); }
+.dialog__close { background: none; border: 0; cursor: pointer; font: 600 var(--fs-small)/1 var(--font-body); color: var(--ink); min-height: 44px; padding: 0 var(--s2); }
+.dialog__qr { display: flex; justify-content: center; padding: var(--s5); background: #fff; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--s3); }
+.dialog__qr svg, .dialog__qr canvas { max-width: 100%; height: auto; image-rendering: pixelated; }
+.dialog__options { list-style: none; padding: 0; margin: var(--s5) 0 0; display: grid; gap: var(--s3); }
+.dialog__options li { margin: 0; }
+.dialog__options a, .dialog__options button {
+  display: block; width: 100%; text-align: left; background: none; cursor: pointer;
+  border: 1px solid var(--rock); border-radius: var(--radius); padding: var(--s3) var(--s4);
+  min-height: 56px; color: var(--ink); text-decoration: none; font: 600 1rem/1.35 var(--font-body);
+}
+.dialog__options a:hover, .dialog__options button:hover { border-color: var(--green-deep); background: var(--paper-2); }
+.dialog__options small { display: block; font-weight: 400; font-size: var(--fs-micro); color: var(--rock); margin-top: 2px; }
+
+/* --------------------------------------------------------------- table */
+.contact-list { margin: 0; display: grid; gap: var(--s4); }
+.contact-list div { display: grid; gap: var(--s1); }
+.contact-list dt { font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .07em; color: var(--rock); }
+.contact-list dd { margin: 0; font-size: 1.0625rem; overflow-wrap: anywhere; }
+.section--dark .contact-list dt { color: #C3D2CB; }
+
+/* ------------------------------------------------------------- diagram */
+.diagram { background: var(--paper-2); border-radius: var(--radius); padding: var(--s5); }
+.diagram svg { width: 100%; height: auto; font-family: var(--font-body); }
+/* A light-surface island inside a .section--dark must reset the contract, or
+   --glass text inherits onto cream and renders at 1.33:1 — which is what the
+   "Open in Google Maps" link on /book/ was doing. D-04. */
+.diagram, .section--dark .panel { color: var(--ink); --focus: var(--green-deep); }
+.diagram a, .section--dark .panel a { color: var(--green-deep); }   /* 8.76:1 on --paper-2 */
+.diagram a:hover, .section--dark .panel a:hover { color: var(--ink); }
+.diagram figcaption { color: var(--rock); }                          /* 4.84:1 */
+
+/* -------------------------------------------------------------- footer */
+.footer { background: var(--ink); color: #fff; --focus: var(--glass); padding-block: var(--s7) var(--s6); }
+.footer a { color: #DCE6E1; text-decoration: none; }
+.footer a:hover { color: var(--glass); text-decoration: underline; text-underline-offset: .18em; }
+.footer__brand { font-family: var(--font-display); font-size: var(--fs-h3); margin: 0 0 var(--s2); }
+.footer__tag { color: var(--muted-on-dark); font-size: var(--fs-small); max-width: 26rem; margin: 0 0 var(--s6); }
+.footer__cols { display: grid; gap: var(--s6); margin-bottom: var(--s7); }
+@media (min-width: 700px) { .footer__cols { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .footer__cols { grid-template-columns: 1fr 1fr 1.2fr; } }
+.footer h2 { font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .07em; color: var(--glass); font-family: var(--font-body); font-weight: 600; margin-bottom: var(--s4); }
+.footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--s3); font-size: var(--fs-small); }
+.footer li { margin: 0; }
+.footer__legal { border-top: 1px solid rgba(255, 255, 255, .16); padding-top: var(--s5); font-size: var(--fs-micro); color: #B7C6BF; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); }
+.footer__legal a { color: #B7C6BF; }
+
+/* ------------------------------------------------------------ reduced */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* -------------------------------------------------------------- print */
+@media print {
+  .header, .stickybar, .menu, .film, .fold__media { display: none; }
+  body { background: #fff; color: #000; padding: 0; }
+  .fold, .fold__panel { background: #fff; color: #000; display: block; min-height: 0; padding-inline: 0; }
+  .fold h1, .fold__sub, .fold__facts { color: #000; }
+}
+
+/* ------------------------------------------------------------- timeline
+   The hour-by-hour itinerary on /ella/. A description list rather than a
+   pre-formatted block so the hours stay readable at 360px and the whole
+   thing survives being screenshotted, which is what people do with it. */
+.timeline { margin: var(--s5) 0 0; }
+.timeline > div { display: grid; gap: var(--s1); padding: var(--s4) 0; border-top: 1px solid var(--line); }
+.timeline > div:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 620px) { .timeline > div { grid-template-columns: 7rem 1fr; gap: var(--s5); } }
+.timeline dt { font-variant-numeric: tabular-nums; font-weight: 700; font-size: var(--fs-small); color: var(--green-deep); letter-spacing: .01em; }
+.timeline dd { margin: 0; max-width: var(--measure); }
+.section--dark .timeline > div { border-color: rgba(143, 217, 190, .28); }
+.section--dark .timeline dt { color: var(--glass); }
+
+/* Guide page foot: onward links plus the honest freshness line. */
+.onward { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s6); align-items: center; }
+.updated { font-size: var(--fs-small); color: var(--rock); max-width: var(--measure); }
+
+/* The three Ella-guide spokes in the footer. They are not decoration: the sitemap
+   plus these links are what keeps ~4,000 words of the site's entire organic-search
+   strategy at crawl depth 1. 09-review.md R-11. */
+.footer__sub { margin: var(--s3) 0 var(--s2); padding-left: var(--s4); border-left: 1px solid rgba(255, 255, 255, .18); gap: var(--s2); }
+.footer__sub a { color: var(--muted-on-dark); }
+
+/* ==================================================================== LAYOUT
+   Ten primitives, per 05b-art-direction-v2.md §3.1. Every page was previously
+   .wrap > .prose stacked vertically, which is one primitive. NO PRIMITIVE PUTS
+   TEXT OVER A PHOTOGRAPH — that is a system rule, not a preference, and it is
+   what 02-concept-and-world.md §6.3 bans by name. */
+
+/* ------------------------------------------------------------ L2 plate */
+.plate { margin-block: var(--s7); }
+.plate__frame { background: var(--fig-field) center/cover no-repeat; overflow: hidden; }
+/* Landscape frames put their subject below the midline and their sky above it, so a
+   centred 16:9 crop of a 4:3 source returns mostly sky — which is what /ella/walks/
+   and /ella/getting-here/ were showing. 62% favours the ground. */
+.plate img { width: 100%; aspect-ratio: 16 / 9; max-height: 62svh; object-fit: cover; object-position: 50% 62%; display: block; }
+.plate figcaption { max-width: var(--wide); margin-inline: auto; padding: var(--s3) var(--gutter) 0; }
+@media (min-width: 900px) { .plate img { max-height: 68svh; } }
+
+@media (min-width: 900px) {
+    }
+
+/* ------------------------------------------------------------ L4 split
+   Asymmetric 7/5, and the image column bleeds to the outer page edge — which is
+   what makes it a split and not two boxes. Replaces .duo's symmetric 1fr 1fr. */
+.split { display: grid; gap: var(--s6); }
+@media (min-width: 860px) {
+  .split { grid-template-columns: 7fr 5fr; gap: clamp(2.25rem, 4vw, 4rem); align-items: start; }
+  .split > .split__media { margin-right: calc(var(--bleed) * -1); }
+  /* Text is always first in the DOM; --flip moves the image to the left edge
+     visually without reordering the reading order. */
+  .split--flip { grid-template-columns: 5fr 7fr; }
+  .split--flip > .split__media { order: -1; margin-right: 0; margin-left: calc(var(--bleed) * -1); }
+}
+.split__media img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+/* The 3:2 above exists to keep split heights predictable, and it should stay the default.
+   One frame cannot live inside it: the terrace group on /story/ is 3:4 with Sando standing
+   at the very bottom, so the landscape crop cut the dog off entirely while the caption went
+   on naming him. Cropping the picture to fit the grid and leaving the caption describing
+   what the crop removed is the exact failure mode §2 of the handoff is about. The grid
+   gives way instead. */
+.split__media--portrait img { aspect-ratio: 3 / 4; }
+
+/* .frame-note lived here from 2026-08-12 to 2026-08-13 — a dashed empty frame that
+   said, in the 4-bed mixed dorm's slot on /rooms/ and on Home, that there was no
+   photograph of that room yet. It existed because the photograph that had been
+   there was of a female dorm, and because the owner told us guests arrive asking
+   for the room in the picture. His replacement photographs arrived by email the
+   next day, so the rule is deleted along with both of its uses, exactly as its
+   own comment instructed. It is in git if the situation ever repeats. */
+
+/* ------------------------------------------------------------ L5 pair
+   One warm frame and one cool frame at one shared height, unequal widths. This is
+   the ONLY place on the site where the two light temperatures are allowed to
+   touch, and it is allowed because the pairing is the statement. */
+.pair { display: grid; gap: var(--s4); }
+.pair img { width: 100%; display: block; }
+.pair > figure { margin: 0; }
+.pair > figure:first-child img { aspect-ratio: 3 / 2; }
+.pair > figure:last-child img { aspect-ratio: 2 / 3; }
+@media (min-width: 720px) {
+  .pair { grid-template-columns: 3fr 2fr; align-items: stretch; }
+  .pair > figure { display: flex; flex-direction: column; }
+  .pair img { height: clamp(18rem, 34vw, 28rem); object-fit: cover; }
+}
+.pair__caption { grid-column: 1 / -1; }
+
+/* ------------------------------------------------------------ L6 strip
+   3-5 portrait cells at one height, unequal widths: the sequence has a subject,
+   and the subject is wider. */
+.strip { display: grid; grid-auto-flow: column; list-style: none; padding: 0; margin: 0; gap: var(--s3); }
+.strip > li { margin: 0; }
+.strip figure { margin: 0; }
+.strip img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
+.strip figcaption { padding-top: var(--s2); }
+@media (max-width: 759px) {
+  .strip {
+    grid-auto-columns: 68%;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    padding-inline: var(--gutter); margin-inline: calc(var(--gutter) * -1);
+    scroll-padding-inline-start: var(--gutter);
+    scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip > li { scroll-snap-align: start; }
+}
+@media (min-width: 760px) {
+  .strip { grid-auto-columns: 1fr; align-items: start; }
+  .strip--4 { grid-template-columns: 1.35fr 1fr 1fr 1.15fr; grid-auto-flow: row dense; }
+  .strip--3 { grid-template-columns: 1.4fr 1fr 1.1fr; grid-auto-flow: row dense; }
+  /* One height across the row. With aspect-ratio and unequal columns the cells came
+     out three different heights and the captions landed on three different
+     baselines, which is exactly what this primitive exists to avoid. */
+  /* Landscape cells, not portrait ones. Every source in this library is a 4:3 or 3:2
+     landscape frame, and cropping those to 4:5 threw away the side of the picture
+     that had the subject in it — the pool table became a corner of felt and a
+     lampshade. One height, unequal widths, and the crop stays close to the frame. */
+  .strip img { aspect-ratio: auto; height: clamp(13rem, 19vw, 19rem); object-fit: cover; object-position: 50% 42%; }
+}
+
+/* ------------------------------------------------------------ L7 ledger */
+.ledger { margin: var(--s5) 0 0; }
+.ledger > div { display: grid; gap: var(--s1); padding-block: var(--s4); border-top: 1px solid var(--line); }
+.ledger > div:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 620px) { .ledger > div { grid-template-columns: 8rem 1fr; gap: var(--s5); } }
+.ledger dt, .ledger__label {
+  font-size: var(--fs-h3); line-height: 1.2;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--accent);
+}
+.ledger dd { margin: 0; max-width: var(--measure); }
+.ledger dd > :first-child { margin-top: 0; }
+
+/* ------------------------------------------------------------ L8 statement
+   One sentence at h1 size against a deliberately empty right two-thirds. The
+   typographic full stop, and the honest opener for a page with no photography. */
+.statement { max-width: 24ch; font-size: var(--fs-h1); line-height: 1.08; letter-spacing: -.012em; }
+.section--statement { padding-block: clamp(3rem, 8vw, 6rem) clamp(2rem, 5vw, 3.5rem); }
+
+/* The price, in the display face, in the warm temperature. It is the site's single
+   most-repeated string and it was setting in the UI sans. */
+.price, .card__price {
+  font-family: var(--font-display); font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: var(--fs-h3); color: var(--timber);
+}
+.section--dark .price, .section--dark .card__price { color: var(--glass); }
+
+/* Long unbroken strings — the email address is 38 characters — must not overflow a
+   fixed-position or clipped ancestor at 320 CSS px. QA 🟠-6. */
+.contact-list dd, .dialog__options small, .panel dd { overflow-wrap: anywhere; }

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Beyond Nomad">
+  <rect width="32" height="32" fill="#0E4636"/>
+  <rect x="3" y="6" width="26" height="3" fill="#8FD9BE"/>
+  <path d="M3 27 L12 13 L18 21 L23 15 L29 27 Z" fill="#F7F4EE"/>
+</svg>

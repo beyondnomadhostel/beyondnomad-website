@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <url>
-    <loc>https://beyondnomadhostel.com/</loc>
-    <lastmod>2026-07-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-
+<!-- All eleven indexable URLs. No changefreq and no priority: search engines
+     ignore both, and 07-seo-and-guide.md §A.7.4 asks for them to be omitted. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://beyondnomadhostel.com/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/rooms/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/breakfast/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/tours/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/ella/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/ella/getting-here/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/ella/walks/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/ella/practicalities/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/story/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/book/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://beyondnomadhostel.com/privacy/</loc><lastmod>2026-08-06</lastmod></url>
 </urlset>
